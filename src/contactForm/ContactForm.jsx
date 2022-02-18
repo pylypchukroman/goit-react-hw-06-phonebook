@@ -1,11 +1,15 @@
 import style from './ContactForm.module.css';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+// import PropTypes from 'prop-types';
+// import { connect } from 'react-redux';
 import { addContact } from '../redux/contacts/contactsActions';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { useDispatch, useSelector } from 'react-redux';
 
-const ContactForm = ({ currentContacts, onSubmit }) => {
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const items = useSelector(state => state.contacts);
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -25,11 +29,9 @@ const ContactForm = ({ currentContacts, onSubmit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    currentContacts.some(
-      contact => name.toLowerCase() === contact.name.toLowerCase()
-    )
+    items.some(contact => name.toLowerCase() === contact.name.toLowerCase())
       ? Notify.failure(`${name} is already in contacts.`)
-      : onSubmit(name, number);
+      : dispatch(addContact(name, number));
     setName('');
     setNumber('');
   };
@@ -67,17 +69,17 @@ const ContactForm = ({ currentContacts, onSubmit }) => {
   );
 };
 
-const mapStateToProps = state => ({
-  currentContacts: state.contacts,
-});
+// const mapStateToProps = state => ({
+//   currentContacts: state.contacts,
+// });
 
-const mapDispatchToProps = dispatch => ({
-  onSubmit: (name, number) => dispatch(addContact(name, number)),
-});
+// const mapDispatchToProps = dispatch => ({
+//   onSubmit: (name, number) => dispatch(addContact(name, number)),
+// });
 
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  currentContacts: PropTypes.array.isRequired,
-};
+// ContactForm.propTypes = {
+//   onSubmit: PropTypes.func.isRequired,
+//   currentContacts: PropTypes.array.isRequired,
+// };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+export default ContactForm;
