@@ -1,8 +1,11 @@
 import style from './ContactForm.module.css';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { addContact } from '../redux/contacts/contactsActions';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-const ContactForm = ({ onSubmit }) => {
+const ContactForm = ({ currentContacts, onSubmit }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -22,7 +25,11 @@ const ContactForm = ({ onSubmit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit(name, number);
+    currentContacts.some(
+      contact => name.toLowerCase() === contact.name.toLowerCase()
+    )
+      ? Notify.failure(`${name} is already in contacts.`)
+      : onSubmit(name, number);
     setName('');
     setNumber('');
   };
@@ -60,8 +67,17 @@ const ContactForm = ({ onSubmit }) => {
   );
 };
 
+const mapStateToProps = state => ({
+  currentContacts: state.contacts,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onSubmit: (name, number) => dispatch(addContact(name, number)),
+});
+
 ContactForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  currentContacts: PropTypes.array.isRequired,
 };
 
-export default ContactForm;
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
